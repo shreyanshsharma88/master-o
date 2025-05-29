@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Racing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #98FB98);
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(to bottom, #87CEEB 30%, #228B22 30%);
+        }
+
+        .road {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 100vh;
+            background: #404040;
+            background-image: 
+                linear-gradient(to bottom, transparent 0%, transparent 48%, white 48%, white 52%, transparent 52%),
+                repeating-linear-gradient(0deg, transparent, transparent 50px, yellow 50px, yellow 60px);
+            animation: roadMove 2s linear infinite;
+        }
+
+        @keyframes roadMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
+
+        .road-curve-left {
+            animation: roadCurveLeft 3s ease-in-out infinite alternate;
+        }
+
+        .road-curve-right {
+            animation: roadCurveRight 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes roadCurveLeft {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            100% { transform: translateX(-60%) rotate(-5deg); }
+        }
+
+        @keyframes roadCurveRight {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            100% { transform: translateX(-40%) rotate(5deg); }
+        }
+
+        .car {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 120px;
+            background: #FF4500;
+            border-radius: 10px 10px 30px 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .car::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            width: 40px;
+            height: 30px;
+            background: #87CEEB;
+            border-radius: 5px;
+            opacity: 0.8;
+        }
+
+        .car::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10px;
+            width: 15px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+            box-shadow: 25px 0 0 #333;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .control-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .speed-control {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .speed-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .speed-btn:hover {
+            background: #45a049;
+        }
+
+        .speed-btn.active {
+            background: #FF4500;
+        }
+
+        .score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+
+        .road.fast {
+            animation-duration: 0.5s;
+        }
+
+        .road.medium {
+            animation-duration: 1s;
+        }
+
+        .road.slow {
+            animation-duration: 3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="road" id="road"></div>
+        <div class="car" id="car"></div>
+        
+        <div class="score">
+            <div>Speed: <span id="speedDisplay">Medium</span></div>
+            <div>Distance: <span id="distance">0</span>m</div>
+        </div>
+
+        <div class="speed-control">
+            <div>Speed Control:</div>
+            <button class="speed-btn" onclick="setSpeed('slow')">Slow</button>
+            <button class="speed-btn active" onclick="setSpeed('medium')">Medium</button>
+            <button class="speed-btn" onclick="setSpeed('fast')">Fast</button>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <button class="control-btn" onclick="moveCar('up')">↑</button>
+            </div>
+            <div class="control-row">
+                <button class="control-btn" onclick="moveCar('left')">←</button>
+                <button class="control-btn" onclick="moveCar('down')">↓</button>
+                <button class="control-btn" onclick="moveCar('right')">→</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carPosition = { x: 0, y: 0 };
+        let currentSpeed = 'medium';
+        let distance = 0;
+        let roadCurveTimer = 0;
+
+        const car = document.getElementById('car');
+        const road = document.getElementById('road');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const distanceDisplay = document.getElementById('distance');
+
+        function moveCar(direction) {
+            const moveDistance = 20;
+            
+            switch(direction) {
+                case 'up':
+                    carPosition.y = Math.max(carPosition.y - moveDistance, -200);
+                    break;
+                case 'down':
+                    carPosition.y = Math.min(carPosition.y + moveDistance, 0);
+                    break;
+                case 'left':
+                    carPosition.x = Math.max(carPosition.x - moveDistance, -150);
+                    car.style.transform = `translateX(calc(-50% + ${carPosition.x}px)) rotate(-10deg)`;
+                    setTimeout(() => {
+                        car.style.transform = `translateX(calc(-50% + ${carPosition.x}px)) rotate(0deg)`;
+                    }, 200);
+                    return;
+                case 'right':
+                    carPosition.x = Math.min(carPosition.x + moveDistance, 150);
+                    car.style.transform = `translateX(calc(-50% + ${carPosition.x}px)) rotate(10deg)`;
+                    setTimeout(() => {
+                        car.style.transform = `translateX(calc(-50% + ${carPosition.x}px)) rotate(0deg)`;
+                    }, 200);
+                    return;
+            }
+            
+            updateCarPosition();
+        }
+
+        function updateCarPosition() {
+            car.style.bottom = `${100 + carPosition.y}px`;
+            car.style.transform = `translateX(calc(-50% + ${carPosition.x}px))`;
+        }
+
+        function setSpeed(speed) {
+            currentSpeed = speed;
+            road.className = `road ${speed}`;
+            
+            // Update active button
+            document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            speedDisplay.textContent = speed.charAt(0).toUpperCase() + speed.slice(1);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    moveCar('up');
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    moveCar('down');
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    moveCar('left');
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    moveCar('right');
+                    break;
+            }
+            e.preventDefault();
+        });
+
+        // Road curves and distance tracking
+        setInterval(() => {
+            roadCurveTimer++;
+            
+            // Change road curves periodically
+            if (roadCurveTimer % 100 === 0) {
+                const curves = ['', 'road-curve-left', 'road-curve-right'];
+                const randomCurve = curves[Math.floor(Math.random() * curves.length)];
+                road.className = `road ${currentSpeed} ${randomCurve}`;
+            }
+            
+            // Update distance based on speed
+            const speedMultiplier = currentSpeed === 'fast' ? 3 : currentSpeed === 'medium' ? 2 : 1;
+            distance += speedMultiplier;
+            distanceDisplay.textContent = distance;
+        }, 100);
+
+        // Initialize
+        updateCarPosition();
+    </script>
+</body>
+</html>
