@@ -22,7 +22,7 @@ function App() {
         <h1>Click on the following buttons to view the assignment</h1>
         <div style={{ display: "flex", gap: "1rem" }}>
           <button onClick={() => setOpened("car-game")}>Car Game</button>
-          <button onClick={() => setOpened("power-bi")}>Q2</button>
+          <button style={{border : '2px solid red'}} onClick={() => setOpened("power-bi")}>Q2</button>
         </div>
         <Dialog
           open={!!opened}
