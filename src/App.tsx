@@ -52,7 +52,7 @@ function App() {
           >
             {opened === "car-game" && (
               <iframe
-                src="../car-game.html"
+                src="public/car-game.html"
                 style={{ width: "100%", height: "80vh", border: "none" }}
                 title="Car Game"
               ></iframe>
